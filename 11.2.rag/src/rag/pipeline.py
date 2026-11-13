@@ -64,10 +64,11 @@ class RAGPipeline:
         self.index: Any = None
         self.history: list[dict[str, str]] = []
 
+    # Oscar
     def build_index(self, chunks: list[Document]) -> None:
         """Build a normalized FAISS index aligned with the supplied chunks."""
         raise NotImplementedError
-
+    # Oscar
     def retrieve(self, question: str, k: int | None = None) -> list[SearchResult]:
         """Return the highest-scoring chunks for the current question."""
         raise NotImplementedError
@@ -76,7 +77,7 @@ class RAGPipeline:
                        results: list[SearchResult]) -> list[dict[str, str]]:
         """Combine grounding instructions, full history, and current evidence."""
         raise NotImplementedError
-
+    # Oscar
     def ask(self, question: str) -> ChatReply:
         """Answer using retrieved evidence and record the completed turn."""
         raise NotImplementedError
