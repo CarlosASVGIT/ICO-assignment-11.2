@@ -7,7 +7,7 @@ Build a Retrieval-Augmented Generation (RAG) pipeline that answers questions usi
 From this activity directory, create and activate an isolated environment and install the project:
 
 ```sh
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
