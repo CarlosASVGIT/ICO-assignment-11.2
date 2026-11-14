@@ -144,7 +144,7 @@ class RAGPipeline:
 
     def clear(self) -> None:
         """Clear conversation history while retaining the index."""
-        raise NotImplementedError
+        self.history.clear()
 
     def rerank(self, question: str, results: list[SearchResult],
                top_n: int) -> list[SearchResult]:
