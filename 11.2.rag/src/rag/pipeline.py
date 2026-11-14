@@ -40,13 +40,55 @@ class ChatReply:
 
 def load_documents(directory: str | Path) -> list[Document]:
     """Load nonempty top-level .txt files with source metadata."""
-    raise NotImplementedError
+    directory = Path(directory)
+
+    if not directory.exists():
+        raise FileNotFoundError(directory)
+
+    if not directory.is_dir():
+        raise NotADirectoryError(directory)
+    documents = []
+
+    for file in sorted(directory.iterdir()):
+        # Only includes .txt files
+        if file.is_file() and file.suffix == ".txt":
+            content = file.read_text(encoding="utf-8")
+
+            if content.strip():
+                documents.append(
+                    Document(
+                        page_content=content,
+                        metadata={"source": file.name}
+                    )
+                )
+
+    return documents
+
 
 
 def split_documents(documents: list[Document], chunk_size: int,
                     chunk_overlap: int) -> list[Document]:
     """Split documents, preserving metadata and assigning chunk IDs."""
-    raise NotImplementedError
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len
+    )
+
+    chunks = []
+
+    for document in documents:
+        texts = splitter.split_text(document.page_content)
+
+        for i, text in enumerate(texts):
+            metadata = document.metadata.copy()
+            metadata["chunk_id"] = f"{metadata['source']}:{i}"
+
+            chunks.append(
+                Document(page_content=text, metadata=metadata)
+            )
+
+    return chunks
 
 
 class RAGPipeline:
