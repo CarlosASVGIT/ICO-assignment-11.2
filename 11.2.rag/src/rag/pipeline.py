@@ -114,11 +114,11 @@ class RAGPipeline:
             return
 
         texts = []
-        self.chunks = chunks
+        self.chunks = chunks.copy()
         for t in self.chunks:
             text = t.page_content
             texts.append(text)
-        embeddings = Encoder.encode(texts,convert_to_numpy=True,normalize_embeddings=True).astype(np.float32)
+        embeddings = self.encoder.encode(texts,convert_to_numpy=True,normalize_embeddings=True).astype(np.float32)
         self.index = faiss.IndexFlatIP(embeddings.shape[1])
         self.index.add(embeddings)
 
@@ -134,12 +134,14 @@ class RAGPipeline:
         if not self.index:
             return []
 
-        query_e = Encoder.encode([question], convert_to_numpy=True,normalize_embeddings=True).astype(np.float32)
+        query_e = self.encoder.encode([question], convert_to_numpy=True,normalize_embeddings=True).astype(np.float32)
         entries = min(k,self.index.ntotal)
         results = []
-        scores, endices = self.index.search(query_e, k)
+        scores, endices = self.index.search(query_e, entries)
         for score, idx in zip(scores[0],endices[0]):
-            results.append(SearchResult(idx,score))
+            if score >= self.config.min_score:
+                doc = self.chunks[idx]
+                results.append(SearchResult(document=doc,score=float(score)))
 
         return results 
 
@@ -175,7 +177,8 @@ class RAGPipeline:
         results = self.retrieve(question)
 
         if not results:
-            self.history.append(question,ABSTENTION)
+            self.history.append({"role": "usuario", "content": question})
+            self.history.append({"role": "usuario", "content": ABSTENTION})
             return ChatReply(ABSTENTION,[])
         
         response = self.client.chat.completions.create(model=self.config.model, messages = self.build_messages(question, results))
@@ -183,7 +186,8 @@ class RAGPipeline:
         if not respuesta or not respuesta.strip():
             raise ValueError()
 
-        self.history.append({question,respuesta})
+        self.history.append({"role": "usuario", "content": question})
+        self.history.append({"role": "usuario", "content": respuesta})
         return ChatReply(respuesta, results)
 
 
