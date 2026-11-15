@@ -109,11 +109,43 @@ class RAGPipeline:
     # Oscar
     def build_index(self, chunks: list[Document]) -> None:
         """Build a normalized FAISS index aligned with the supplied chunks."""
-        raise NotImplementedError
+        if not chunks:
+            self.index = None
+            return
+
+        texts = []
+        self.chunks = chunks
+        for t in self.chunks:
+            text = t.page_content
+            texts.append(text)
+        embeddings = Encoder.encode(texts,convert_to_numpy=True,normalize_embeddings=True).astype(np.float32)
+        self.index = faiss.IndexFlatIP(embeddings.shape[1])
+        self.index.add(embeddings)
+
     # Oscar
     def retrieve(self, question: str, k: int | None = None) -> list[SearchResult]:
         """Return the highest-scoring chunks for the current question."""
-        raise NotImplementedError
+        if k == None:
+            k = self.config.top_k
+
+        if k <= 0:
+            raise ValueError()
+
+        if not self.index:
+            return []
+
+        query_e = Encoder.encode([question], convert_to_numpy=True,normalize_embeddings=True).astype(np.float32)
+        entries = min(k,self.index.ntotal)
+        results = []
+        scores, endices = self.index.search(query_e, k)
+        for score, idx in zip(scores[0],endices[0]):
+            results.append(SearchResult(idx,score))
+
+        return results 
+
+
+        
+
 
     def build_messages(self, question: str,
                        results: list[SearchResult]) -> list[dict[str, str]]:
@@ -140,7 +172,20 @@ class RAGPipeline:
     # Oscar
     def ask(self, question: str) -> ChatReply:
         """Answer using retrieved evidence and record the completed turn."""
-        raise NotImplementedError
+        results = self.retrieve(question)
+
+        if not results:
+            self.history.append(question,ABSTENTION)
+            return ChatReply(ABSTENTION,[])
+        
+        response = self.client.chat.completions.create(model=self.config.model, messages = self.build_messages(question, results))
+        respuesta = response.choices[0].message.content
+        if not respuesta or not respuesta.strip():
+            raise ValueError()
+
+        self.history.append({question,respuesta})
+        return ChatReply(respuesta, results)
+
 
     def clear(self) -> None:
         """Clear conversation history while retaining the index."""
