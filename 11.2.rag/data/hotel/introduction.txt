@@ -1,0 +1,10 @@
+INTRODUCCIÓN
+Mizrah Luxury Resort un hotel con raíces israelíes fundado en 2018,en la CDMX, con el propósito de ofrecer una experiencia autentica israeli, este resort de lujo ofrece aproximadamente 40 actividades y servicios tanto dentro como fuera de sus instalaciones, tiene una temática inspirada en parte por tel aviv la ciudad natal de su fundador Josef Ashkenazi. Ashkenazi un inmigrante Judio emigró a la ciudad de México a sus 30 años junto con su familia debido a conflictos internos en su país. Inmediatamente quedó cautivado por la gastronomía, la arquitectura y la calidez de la ciudad. Eventualmente Ashkenazi se propuso el rescatar lo mejor de ambas culturas, ahí es donde nace Mizrah Luxury Resort
+
+
+Planteamiento del problema
+	Se requiere desarrollar una solución de bases de datos que permita llevar a cabo el control de información de un hotel 5 estrellas, los cuales se están contemplando reservaciones de habitación, paquetes de servicios internos y externos y manejo de quejas y satisfacción del cliente. 
+La base de datos almacena información sobre inventario de habitaciones de 6 categorías y precios, huéspedes, procesos de registro-cancelaciones e inventario de servicios.
+Para cada proceso de reservación se conocen todos los datos del huésped (nombre, teléfono, domicilio, correo, RFC, sexo, fecha de nacimiento, edad) al que se genere facturación y que solo se registra y a los acompañantes se necesita conocer sus nombres completos, fecha de nacimiento y correo. 
+El huésped puede adquirir desde 1 noche en adelante el cuarto de hotel y puede seleccionar cualquiera de los servicios que el hotel ofrece, ya sea en el momento del registro o durante su estancia, se podrá llevar un registro de los consumos hechos en cualquier servicio interno, así como también de los servicios externos, se registra fecha, hora y habitación. 
+El hotel tiene paquetes promocionales para los clientes potenciales y estos son clasificados de acuerdo a los diferentes eventos que se llevan a cabo de forma anual.
